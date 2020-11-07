@@ -61,3 +61,5 @@ DiscosSolistaDS <- rbind(DiscosSolista[[1]], DiscosSolista[[2]],DiscosSolista[[3
                          DiscosSolista[[19]],DiscosSolista[[20]],DiscosSolista[[21]] )
 
 rm(DiscosSolista)##elimino la lista que se creó
+
+hago algo nuevo acá
