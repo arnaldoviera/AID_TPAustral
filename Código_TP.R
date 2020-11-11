@@ -24,7 +24,7 @@ colnames(serugiran)<-c("name" , "track_number", "disc_number", "album_id",
                        "valence",          "tempo"  ,         
                        "duration_ms" ,     "time_signature"  ,
                        "uri"  ,            "analysis_url"  )
-View(serugiran)
+  View(serugiran)
 
 
 library(readr) ## importación de Sui Generis
@@ -36,19 +36,6 @@ suigeneris<- suigeneris [,c(1,2,21,3,22,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,1
 
 View(suigeneris)
 
-## a Sui Generis le faltan 2 columnas: la n° 3 (disc_number) y la n° 6 (album_artist) LISTO
-
-
-#setwd("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/solista/") 
-##importación solista
-
-DiscosSolistasSueltos <- list.files(path=paste(dir_project_files, "/solista/", sep=""), pattern="*.txt")
-
-DiscosSolista<-lapply(DiscosSolistasSueltos, read.delim)
-
-
-#setwd("C:/Users/arnal/OneDrive/Dropbox/UAustral/ANÁLISIS INTELIGENTE DE DATOS/Repo/AID_TPAustral") 
-
 
 library(readr) ##importación Porsuigieco
 porsuigieco <- read_delim(paste(dir_project_files, "/porsuigieco.txt", sep=""), 
@@ -58,16 +45,13 @@ View(porsuigieco)
 
 install.packages("haven")
 
-library("haven")
-
 library("haven") ## importación Billy Bond and The Jets
 bbatj <- read_sas(paste(dir_project_files, "/bbatj.sas7bdat", sep=""))
-
-
-#setwd("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/solista/") 
-##importación solista
+View(bbatj)
 
 DiscosSolistasSueltos <- list.files(path=paste(dir_project_files, "/solista/", sep=""), pattern="*.txt")
+
+View(DiscosSolistasSueltos)
 
 DiscosSolista<-lapply(DiscosSolistasSueltos, read.delim)
 
