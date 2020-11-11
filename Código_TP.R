@@ -5,13 +5,14 @@ install.packages("readr")
 
 install.packages("readxl")
 
-getwd()
+dir_project = getwd();
+dir_project_files <- paste( dir_project , "/Files", sep="");
 
 rm() ## borrar lo que creo sin sentido
 
 
 library(readxl) ## importación de Segú Giran
-serugiran <- read_excel(path = "C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/serugiran.xlsx",sheet = "Sheet1",range = "A1:V123")
+serugiran <- read_excel(path = paste(dir_project_files, "/serugiran.xlsx", sep=""),sheet = "Sheet1",range = "A1:V123");
 
 colnames(serugiran)<-c("name" , "track_number", "disc_number", "album_id",     
                        "album_artist",    "album_name"  ,    
@@ -27,7 +28,7 @@ View(serugiran)
 
 
 library(readr) ## importación de Sui Generis
-suigeneris <- read_csv("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/suigeneris.csv")
+suigeneris <- read_csv(paste(dir_project_files, "/suigeneris.csv", sep=""));
 
 suigeneris$disc_number<-("")
 suigeneris$album_artist<-("SuiGeneris")
@@ -38,19 +39,19 @@ View(suigeneris)
 ## a Sui Generis le faltan 2 columnas: la n° 3 (disc_number) y la n° 6 (album_artist) LISTO
 
 
-setwd("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/solista/") 
+#setwd("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/solista/") 
 ##importación solista
 
-DiscosSolistasSueltos <- list.files(path="C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/solista/", pattern="*.txt")
+DiscosSolistasSueltos <- list.files(path=paste(dir_project_files, "/solista/", sep=""), pattern="*.txt")
 
 DiscosSolista<-lapply(DiscosSolistasSueltos, read.delim)
 
 
-setwd("C:/Users/arnal/OneDrive/Dropbox/UAustral/ANÁLISIS INTELIGENTE DE DATOS/Repo/AID_TPAustral") 
+#setwd("C:/Users/arnal/OneDrive/Dropbox/UAustral/ANÁLISIS INTELIGENTE DE DATOS/Repo/AID_TPAustral") 
 
 
 library(readr) ##importación Porsuigieco
-porsuigieco <- read_delim("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/porsuigieco.txt", 
+porsuigieco <- read_delim(paste(dir_project_files, "/porsuigieco.txt", sep=""), 
                           "|", escape_double = FALSE, trim_ws = TRUE)
 View(porsuigieco)
 
@@ -60,13 +61,13 @@ install.packages("haven")
 library("haven")
 
 library("haven") ## importación Billy Bond and The Jets
-bbatj <- read_sas("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/bbatj.sas7bdat")
+bbatj <- read_sas(paste(dir_project_files, "/bbatj.sas7bdat", sep=""))
 
 
-setwd("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/solista/") 
+#setwd("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/solista/") 
 ##importación solista
 
-DiscosSolistasSueltos <- list.files(path="C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/solista/", pattern="*.txt")
+DiscosSolistasSueltos <- list.files(path=paste(dir_project_files, "/solista/", sep=""), pattern="*.txt")
 
 DiscosSolista<-lapply(DiscosSolistasSueltos, read.delim)
 
@@ -87,4 +88,4 @@ View(union)
 
 
 #pasar a txt, separado por tabulador falta el working directory.
-write.table(union,"C:/Users/quintej/Desktop/MCD/AID/AID/resultado.txt",sep="\t")
+write.table(union,paste(dir_project_files, "/resultado/resultado.txt", sep=""),sep="\t")
