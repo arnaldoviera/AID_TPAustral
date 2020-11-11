@@ -84,3 +84,7 @@ rm(DiscosSolista)##elimino la lista que se creó
 #unir Discos aun DataFrame
 union <- rbind(serugiran, suigeneris,porsuigieco,DiscosSolistaDS, bbatj)
 View(union)
+
+
+#pasar a txt, separado por tabulador falta el working directory.
+write.table(union,"C:/Users/quintej/Desktop/MCD/AID/AID/resultado.txt",sep="\t")
