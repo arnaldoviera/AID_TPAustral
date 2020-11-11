@@ -82,5 +82,5 @@ rm(DiscosSolista)##elimino la lista que se creó
 
 
 #unir Discos aun DataFrame
-union <- rbind(serugiran, suigeneris,porsuigieco,DiscosSolistaDS)
+union <- rbind(serugiran, suigeneris,porsuigieco,DiscosSolistaDS, bbatj)
 View(union)
