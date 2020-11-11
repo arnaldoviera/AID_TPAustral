@@ -13,11 +13,29 @@ rm() ## borrar lo que creo sin sentido
 library(readxl) ## importación de Segú Giran
 serugiran <- read_excel(path = "C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/serugiran.xlsx",sheet = "Sheet1",range = "A1:V123")
 
+colnames(serugiran)<-c("name" , "track_number", "disc_number", "album_id",     
+                       "album_artist",    "album_name"  ,    
+                       "id"   ,            "danceability" ,   
+                       "energy"  ,         "key"    ,         
+                       "loudness"  ,       "mode"   ,         
+                       "speechiness" ,     "acousticness" ,   
+                       "instrumentalness", "liveness"  ,      
+                       "valence",          "tempo"  ,         
+                       "duration_ms" ,     "time_signature"  ,
+                       "uri"  ,            "analysis_url"  )
+View(serugiran)
+
+
 library(readr) ## importación de Sui Generis
 suigeneris <- read_csv("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/suigeneris.csv")
+
+suigeneris$disc_number<-("")
+suigeneris$album_artist<-("SuiGeneris")
+suigeneris<- suigeneris [,c(1,2,21,3,22,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)]
+
 View(suigeneris)
 
-## a Sui Generis le faltan 2 columnas: la n° 3 (disc_number) y la n° 6 (album_artist)
+## a Sui Generis le faltan 2 columnas: la n° 3 (disc_number) y la n° 6 (album_artist) LISTO
 
 
 setwd("C:/Users/arnal/OneDrive/Escritorio/Tarea 1/datos_charly/solista/") 
@@ -62,4 +80,7 @@ DiscosSolistaDS <- rbind(DiscosSolista[[1]], DiscosSolista[[2]],DiscosSolista[[3
 
 rm(DiscosSolista)##elimino la lista que se creó
 
-hago algo nuevo acá
+
+#unir Discos aun DataFrame
+union <- rbind(serugiran, suigeneris,porsuigieco,DiscosSolistaDS)
+View(union)
