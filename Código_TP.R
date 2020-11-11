@@ -14,6 +14,12 @@ library("haven")
 dir_project = getwd()
 dir_project_files <- paste( dir_project , "/datos_charly", sep="")
 
+# UNZIP datos_charly
+zipF <- paste( dir_project , "/datos_charly.zip", sep="")
+outDir <- paste( dir_project , "/datos_charly", sep="")
+unzip(zipF,exdir=outDir)
+help(unzip)
+
 
 #SERUGIRAN
 path_serugiran_xlxs <- paste(dir_project_files, "/serugiran.xlsx", sep="")
@@ -74,4 +80,4 @@ View(union)
 
 
 #GENERAMOS EL RESULTADO
-write.table(union,paste(dir_project_files, "/resultado/resultado.txt", sep=""),sep="\t")
+write.table(union,paste(dir_project, "/resultado.txt", sep=""),sep="\t")
