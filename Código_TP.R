@@ -12,7 +12,7 @@ library("haven")
 
 #definicion de variables
 dir_project = getwd()
-dir_project_files <- paste( dir_project , "/Files", sep="")
+dir_project_files <- paste( dir_project , "/datos_charly", sep="")
 
 
 #SERUGIRAN
