@@ -59,7 +59,7 @@ View(bbatj)
 #DIRECTORY SOLISTA
 path_dir_solista = paste(dir_project_files, "/solista/", sep="")
 setwd(path_dir_solista)
-
+help(list.files)
 DiscosSolistasSueltos <- list.files(path=path_dir_solista, pattern="*.txt")
 DiscosSolista<-lapply(DiscosSolistasSueltos, read.delim)
 View(DiscosSolista)
