@@ -1,19 +1,28 @@
-install.packages("tidyverse")
-install.packages("PerformanceAnalytics")
+lista_paquetes = c('funModeling',"ggthemes","ggcorrplot","dplyr","corrplot",'tidyverse','Hmisc','dplyr','PerformanceAnalytics','psych','corrplot','readr','tidyverse', 'DescTools', 'here','blockcluster', 'knitr', 'readxl', 'ggplot2',"cowplot")
+nuevos_paquetes = lista_paquetes[!(lista_paquetes %in% installed.packages()[,"Package"])]
+if(length(nuevos_paquetes)) install.packages(nuevos_paquetes, dependencies = TRUE)
 
-library(tidyverse) #para todo lo demas
-
-
+suppressWarnings(suppressMessages(easypackages::libraries(lista_paquetes)))
+library(dplyr)
+library(readxl)
+library(ggplot2)
+library(corrplot)
+library(psych)
+library(ggcorrplot)
 library("PerformanceAnalytics")
+library(ggthemes)
+library(funModeling)
+library(readr)
 
+##me falta llamar al archivo, como lo hago desde mi pc no puedo usar el que esta en github.
 
 summary(train)
-
-
-
-
-
-
+glimpse(train)
+print(status(train))
+freq(train) 
+print(profiling_num(train))
+plot_num(train)
+describe(train)
 
 
 
