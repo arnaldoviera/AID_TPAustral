@@ -1,0 +1,27 @@
+library("readxl") #excel
+library(haven) #sas
+library(tidyverse) #para todo lo demas
+
+library(readr)
+resultado <- read_delim("C:/Users/quintej/Desktop/MCD/AID/TP2/resultado.txt", 
+                        "\t", escape_double = FALSE, trim_ws = TRUE)
+library(tibble)
+datos <- tibble(
+resultado
+)
+datos
+
+class(datos)
+datos2<- datos %>% 
+  group_by(album_name) %>% 
+  summarise(mean = mean(danceability),
+            min = min(danceability),
+            max = max(danceability)
+            )
+datos2
+boxplot(loudness~album_artist,
+        data =datos,
+        xlab="album_artist",
+        ylab="danceability",
+        col="red",
+        border="brown")
