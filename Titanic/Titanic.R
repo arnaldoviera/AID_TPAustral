@@ -3,6 +3,22 @@ install.packages("PerformanceAnalytics")
 
 library(tidyverse) #para todo lo demas
 
+install.packages("funModeling")
+install.packages("Hmisc")
+library(funModeling) 
+library(tidyverse) 
+library(Hmisc)
+
+library(dplyr)
+glimpse(train)
+print(status(train))
+freq(train) 
+print(profiling_num(train))
+plot_num(train)
+describe(train)
+
+
+
 
 library("PerformanceAnalytics")
 
@@ -10,6 +26,50 @@ library("PerformanceAnalytics")
 summary(train)
 
 
+train$Sex_num <- as.character(train$Sex)
+train$Sex_num[train$Sex=="male"]<-1
+train$Sex_num[train$Sex=="female"]<-0
+train$Sex_num <- as.numeric(train$Sex_num)
+table(train$Sex_num)
+
+
+train$Embarked_num <- as.character(train$Embarked)
+train$Embarked_num[train$Embarked=="S"]<-3
+train$Embarked_num[train$Embarked=="Q"]<-2
+train$Embarked_num[train$Embarked=="C"]<-1
+train$Embarked_num <- as.numeric(train$Embarked_num)
+table(train$Embarked_num)
+
+
+Train_Numerico <- select(train,
+                        Survived,
+                        Pclass,
+                        Age,
+                        SibSp,
+                        Fare, 
+                        Parch,
+                        Sex_num,
+                        Embarked_num                
+                        )                      
+
+
+chart.Correlation (Train_Numerico, histogram = TRUE, method = "spearman")
+
+install.packages("plotly")
+library(plotly)
+
+
+
+
+
+
+
+
+
+
+boxplot(train)
+
+chart.RollingCorrelation(train$Survived, train$Pclass, train$Age, train$Sex, train$SibSp, train$Fare, train$Parch)
 
 
 
