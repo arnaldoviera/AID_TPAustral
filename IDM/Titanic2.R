@@ -1,15 +1,10 @@
-lista_paquetes = c('funModeling',"ggthemes","rpart", "rpart.plot","ggcorrplot","dplyr","corrplot",'tidyverse','Hmisc','dplyr','PerformanceAnalytics','psych','corrplot','readr','tidyverse', 'DescTools', 'here','blockcluster', 'knitr', 'readxl', 'ggplot2',"cowplot")
+lista_paquetes = c('funModeling',"ggthemes","rpart", "caret", "rpart.plot","ggcorrplot","dplyr","corrplot",'tidyverse','Hmisc','dplyr','PerformanceAnalytics','psych','corrplot','readr','tidyverse', 'DescTools', 'here','blockcluster', 'knitr', 'readxl', 'ggplot2',"cowplot")
 install.packages("PerformanceAnalytics")	
 nuevos_paquetes = lista_paquetes[!(lista_paquetes %in% installed.packages()[,"Package"])]
 
 if(length(nuevos_paquetes)) install.packages(nuevos_paquetes, dependencies = TRUE)
-library(tidyverse) #para todo lo demas	
 
-install.packages("caret")
-
-##no se qué es
-suppressWarnings(suppressMessages(easypackages::libraries(lista_paquetes)))
-
+library(tidyverse)
 library(dplyr)
 library(readxl)
 library(ggplot2)
@@ -49,9 +44,8 @@ describe(train)
 head(train)
 
 
-
 ##formula
-formula_1 <- formula(Survived ~ Pclass + Sex + Embarked )
+formula_1 <- formula(Survived ~ Pclass + Sex + Embarked)
 
 ##arbol discreto
 arbol_1 <- rpart(formula_1, data = train)
@@ -79,5 +73,4 @@ Predicción_Arbol2 <- predict(arbol_2)
 ##Revisión predicción
 head(Predicción_Arbol2)
 
-rm(arbol_3)
 
