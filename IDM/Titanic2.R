@@ -1,15 +1,20 @@
-lista_paquetes = c('funModeling',"ggthemes","rpart", "rpart.plot","ggcorrplot","dplyr","corrplot",'tidyverse','Hmisc','dplyr','PerformanceAnalytics','psych','corrplot','readr','tidyverse', 'DescTools', 'here','blockcluster', 'knitr', 'readxl', 'ggplot2',"cowplot")
-install.packages("PerformanceAnalytics")	
+##limiar ambiente de trabajo
+rm(list =ls())
+
+##setear directorio de trabajo
+WD <- getwd()
+Files_IDM <- paste(WD, "/IDM")
+
+##Instalación de paquetes
+
+lista_paquetes = c("funModeling","caret","ggthemes","rpart", "rpart.plot","ggcorrplot","dplyr","corrplot",'tidyverse','Hmisc','dplyr','PerformanceAnalytics','psych','corrplot','readr','tidyverse', 'DescTools', 'here','blockcluster', 'knitr', 'readxl', 'ggplot2',"cowplot")
+install.packages("PerformanceAnalytics")
+
 nuevos_paquetes = lista_paquetes[!(lista_paquetes %in% installed.packages()[,"Package"])]
 
 if(length(nuevos_paquetes)) install.packages(nuevos_paquetes, dependencies = TRUE)
-library(tidyverse) #para todo lo demas	
 
-install.packages("caret")
-
-##no se qué es
-suppressWarnings(suppressMessages(easypackages::libraries(lista_paquetes)))
-
+##carga de librerías
 library(dplyr)
 library(readxl)
 library(ggplot2)
@@ -23,21 +28,13 @@ library(readr)
 library(tidyverse)
 library(rpart)
 library(rpart.plot)
+library(DataExplorer)
+library(gridExtra)
 library(caret)
 
-##me falta llamar al archivo, como lo hago desde mi pc no puedo usar el que esta en github.
-
-##setear directorio de trabajo
-WD <- getwd()
-Files_IDM <- paste(WD, "/IDM")
 
 ##importación
-library(readr)
 train <- read_csv("IDM/train.csv")
-View(train)
-
-test <- read_csv("IDM/test.csv")
-View(test)
 
 
 ##EDA
@@ -50,17 +47,30 @@ plot_num(train)
 describe(train)
 head(train)
 
+g1 <- train %>% 
+  ggplot(aes(x = SibSp + Parch)) + 
+  geom_bar(aes(fill = as.factor(SibSp + Parch))) + 
+  labs(x="FamilySize") + 
+  scale_fill_discrete(guide=FALSE) 
+
+g2 <-train %>% 
+  ggplot(aes(SibSp + Parch)) + 
+  geom_bar(aes(fill = Survived),position = "fill")+ 
+  labs(x="FamilySize") +
+  scale_fill_discrete(guide=FALSE) 
+grid.arrange(g1,g2)
+
 ##evalua datos faltantes
-plot_missing(train)
+##plot_missing(train)
 
 #paso a factores.
 train <- train %>% 
   mutate(Survived=factor(Survived), 
-                          Pclass=factor(Pclass, ordered=T),
-                          Name=factor(Name), 
-                          Sex=factor(Sex), 
-                          Embarked=factor(Embarked))
-View(train)
+         Pclass=factor(Pclass, ordered=T),
+         Name=factor(Name), 
+         Sex=factor(Sex), 
+         Embarked=factor(Embarked))
+
 #en comparacion, hay mas cantidad de hombres vs mujeres.
 train %>% group_by(Sex) %>% count()
 
@@ -92,73 +102,62 @@ train %>%
 
 
 
+#Armado del arbol
 
-##formula
-formula_1 <- formula(Survived ~ Pclass + Sex + Embarked )
-
-##arbol discreto
-arbol_1 <- rpart(formula_1, data = train)
-
-##gráfico básico
-prp(arbol_1, extra=101, type=2,  xsep="/")
-
-##formula 2
-formula_2 <- formula(Survived ~Pclass + Sex + Embarked + Age + SibSp + Parch + Fare)
-
-##arbol 2
-arbol_2 <- rpart(formula_2, data = train)
-
-##gráficos 2
-prp(arbol_2, extra=101, type=2,  xsep="/", box.palette = "auto",
-    round=0, leaf.round = 2, shadow.col = "gray", yes.text="Si", no.text = "No")
-
-rpart.plot(arbol_2)
-
-printcp (arbol_2)
-
-##Predicción 
-Predicción_Arbol2 <- predict(arbol_2)
-View(Predicción_Arbol2)
-
-##Revisión predicción
-head(Predicción_Arbol2)
+##combinar variables vinculadas a la familia
+train$Familia <- train$Parch + train$SibSp 
 
 
+##factorizar variables
+train <- train %>% 
+  mutate(Survived=factor(Survived), 
+         Pclass=factor(Pclass, ordered=T),
+         Name=factor(Name), 
+         Sex=factor(Sex), 
+         Embarked=factor(Embarked),
+         Familia=factor(Familia))
+View(train)
 
 
-##formula 3
-formula_3 <- formula(Survived ~Pclass + Sex + Embarked + Age + Fare)
-##arbol 3
-arbol_3 <- rpart(formula_3, data = train, 
-                 control = rpart.control(minbucket = 3, maxdepth=10))
-##arbol_3 <- rpart(formula_3, data = train)
-##gráficos 3
-prp(arbol_3, extra=101, type=2,  xsep="/", box.palette = "auto",
+## Almacenar Fórmula. Se descartan los nombres, ID y Cabina. 
+formula_3 <- formula(Survived ~Pclass + Sex + Embarked + Age + Fare + Familia )
+
+
+##Armado del arbol 
+arbol_4 <- rpart(formula_3, data = train, 
+                 control = rpart.control(
+                   minbucket = 1, 
+                   minsplit = 1, 
+                   maxdepth=30,
+                   CP = 0
+                 ))
+##gráficos 4
+prp(arbol_4, extra=101, type=2,  xsep="/", box.palette = "auto",
     round=0, leaf.round = 2, shadow.col = "gray", yes.text="Si", 
     no.text = "No")
-rpart.plot(arbol_3)
-printcp (arbol_3)
-##Predicción 
-Predicción_Arbol3 <- predict(arbol_3)
-View(Predicción_Arbol3)
-##Revisión predicción
-head(Predicción_Arbol3)
+rpart.plot(arbol_4)
+printcp (arbol_4)
+plotcp (arbol_4)
 
 
+## Poda del Arbol 
+Parbol_4 <- prune(arbol_4, cp = 0.020468 )
+printcp(Parbol_4)
+rpart.plot(Parbol_4)
+
+##predicción sobre Train con arbol podado
+
+Predic_PA4 <- predict(Parbol_4, newdata = train, type = "class")
+
+table(Predic_PA4, train$Survived)
+
+sum((Predic_PA4 == train$Survived) / length(train$Survived))*100
 
 
-#### NO FUNCA
-##Curva ROC
-install.packages("keras")
-install.packages("Metrics")
-library(keras)
-vecPred = as.vector(Predicción_Arbol3)
-View(vecPred)
-mdl_auc <- Metrics::auc(actual = Predicción_Arbol3, predicted = train$Survived)
-### NO FUNCA
-#####################
-pred <- prediction(predict(arbolcv$finalModel, type = "prob", newdata = dfBlodTest)[, 2], dfBlodTest$dono)
-plot(performance(pred, "tpr", "fpr"),
-     main= paste0("AUC = ", round(mdl_auc, 4)))
+##predicción sobre Train con arbol entero
 
+Predic_A4 <- predict(arbol_4, newdata = train, type = "class")
 
+table(Predic_A4, train$Survived)
+
+sum((Predic_A4 == train$Survived) / length(train$Survived))*100
