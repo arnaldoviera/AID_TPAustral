@@ -36,6 +36,8 @@ library(readr)
 train <- read_csv("IDM/train.csv")
 View(train)
 
+test <- read_csv("IDM/test.csv")
+View(test)
 
 
 ##EDA
@@ -52,10 +54,17 @@ head(train)
 plot_missing(train)
 
 #paso a factores.
-train <- train %>% mutate(Survived=factor(Survived), Pclass=factor(Pclass, ordered=T),Name=factor(Name), Sex=factor(Sex), Embarked=factor(Embarked))
-
+train <- train %>% 
+  mutate(Survived=factor(Survived), 
+                          Pclass=factor(Pclass, ordered=T),
+                          Name=factor(Name), 
+                          Sex=factor(Sex), 
+                          Embarked=factor(Embarked))
+View(train)
 #en comparacion, hay mas cantidad de hombres vs mujeres.
 train %>% group_by(Sex) %>% count()
+
+train %>% group_by(Survived) %>% count()
 
 ### si graficamos la tasa de supervivencia, 
 train %>% filter(!is.na(Survived)) %>% ggplot(aes(factor(Sex), fill = factor(Survived))) +
@@ -84,8 +93,6 @@ train %>%
 
 
 
-
-
 ##formula
 formula_1 <- formula(Survived ~ Pclass + Sex + Embarked )
 
@@ -95,13 +102,13 @@ arbol_1 <- rpart(formula_1, data = train)
 ##gráfico básico
 prp(arbol_1, extra=101, type=2,  xsep="/")
 
-##formula
+##formula 2
 formula_2 <- formula(Survived ~Pclass + Sex + Embarked + Age + SibSp + Parch + Fare)
 
 ##arbol 2
 arbol_2 <- rpart(formula_2, data = train)
 
-##gráficos
+##gráficos 2
 prp(arbol_2, extra=101, type=2,  xsep="/", box.palette = "auto",
     round=0, leaf.round = 2, shadow.col = "gray", yes.text="Si", no.text = "No")
 
@@ -111,9 +118,47 @@ printcp (arbol_2)
 
 ##Predicción 
 Predicción_Arbol2 <- predict(arbol_2)
+View(Predicción_Arbol2)
 
 ##Revisión predicción
 head(Predicción_Arbol2)
 
-rm(arbol_3)
+
+
+
+##formula 3
+formula_3 <- formula(Survived ~Pclass + Sex + Embarked + Age + Fare)
+##arbol 3
+arbol_3 <- rpart(formula_3, data = train, 
+                 control = rpart.control(minbucket = 3, maxdepth=10))
+##arbol_3 <- rpart(formula_3, data = train)
+##gráficos 3
+prp(arbol_3, extra=101, type=2,  xsep="/", box.palette = "auto",
+    round=0, leaf.round = 2, shadow.col = "gray", yes.text="Si", 
+    no.text = "No")
+rpart.plot(arbol_3)
+printcp (arbol_3)
+##Predicción 
+Predicción_Arbol3 <- predict(arbol_3)
+View(Predicción_Arbol3)
+##Revisión predicción
+head(Predicción_Arbol3)
+
+
+
+
+#### NO FUNCA
+##Curva ROC
+install.packages("keras")
+install.packages("Metrics")
+library(keras)
+vecPred = as.vector(Predicción_Arbol3)
+View(vecPred)
+mdl_auc <- Metrics::auc(actual = Predicción_Arbol3, predicted = train$Survived)
+### NO FUNCA
+#####################
+pred <- prediction(predict(arbolcv$finalModel, type = "prob", newdata = dfBlodTest)[, 2], dfBlodTest$dono)
+plot(performance(pred, "tpr", "fpr"),
+     main= paste0("AUC = ", round(mdl_auc, 4)))
+
 
