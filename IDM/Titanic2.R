@@ -23,9 +23,14 @@ library(readr)
 library(tidyverse)
 library(rpart)
 library(rpart.plot)
+
+
+##EDA
+library(DataExplorer)
+library(gridExtra)
 library(caret)
 
-##me falta llamar al archivo, como lo hago desde mi pc no puedo usar el que esta en github.
+
 
 ##setear directorio de trabajo
 WD <- getwd()
