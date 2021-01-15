@@ -43,6 +43,42 @@ plot_num(train)
 describe(train)
 head(train)
 
+##evalua datos faltantes
+plot_missing(train)
+
+#paso a factores.
+train <- train %>% mutate(Survived=factor(Survived), Pclass=factor(Pclass, ordered=T),Name=factor(Name), Sex=factor(Sex), Embarked=factor(Embarked))
+
+#en comparacion, hay mas cantidad de hombres vs mujeres.
+train %>% group_by(Sex) %>% count()
+
+### si graficamos la tasa de supervivencia, 
+train %>% filter(!is.na(Survived)) %>% ggplot(aes(factor(Sex), fill = factor(Survived))) +
+  geom_bar(position = "fill")  +
+  scale_fill_brewer(palette = "Set2") +    
+  ggtitle("Tasa de Supervivencia") + 
+  labs(x = "Sex", y = "Rate")
+
+
+##si evaluamos la tasa de supervivencia por clase, vemos que 
+##cuanta más alta la clase, más probabilidades de sobrevivir
+train %>%
+  filter(!is.na(Survived)) %>%
+  ggplot(aes(factor(Pclass), fill = factor(Survived))) +
+  geom_bar(position = "fill") + 
+  scale_fill_brewer(palette = "Set2") +  
+  ggtitle("Tasa de supervivencia por Clase") + 
+  labs(x = "Pclass", y = "Rate")
+
+
+##si dividimos la supervivencia por Edad, vemos que los más jovenes tuvieron mayor tasa de supervivencia
+train %>%
+  ggplot(aes(x = Age, y = ..count.., fill = Survived)) +
+  geom_density(alpha = 0.2)
+
+
+
+
 
 ##formula
 formula_1 <- formula(Survived ~ Pclass + Sex + Embarked)
