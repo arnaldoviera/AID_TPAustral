@@ -1,4 +1,4 @@
-##limiar ambiente de trabajo
+##limpiar ambiente de trabajo
 rm(list =ls())
 
 ##setear directorio de trabajo
@@ -33,9 +33,10 @@ library(gridExtra)
 library(caret)
 
 
+
 ##importación
 train <- read_csv("IDM/train.csv")
-
+test <- read_csv("IDM/test.csv")
 
 ##EDA
 summary(train)	
@@ -47,21 +48,10 @@ plot_num(train)
 describe(train)
 head(train)
 
-g1 <- train %>% 
-  ggplot(aes(x = SibSp + Parch)) + 
-  geom_bar(aes(fill = as.factor(SibSp + Parch))) + 
-  labs(x="FamilySize") + 
-  scale_fill_discrete(guide=FALSE) 
 
-g2 <-train %>% 
-  ggplot(aes(SibSp + Parch)) + 
-  geom_bar(aes(fill = Survived),position = "fill")+ 
-  labs(x="FamilySize") +
-  scale_fill_discrete(guide=FALSE) 
-grid.arrange(g1,g2)
 
 ##evalua datos faltantes
-##plot_missing(train)
+plot_missing(train)
 
 #paso a factores.
 train <- train %>% 
@@ -76,12 +66,12 @@ train %>% group_by(Sex) %>% count()
 
 train %>% group_by(Survived) %>% count()
 
-### si graficamos la tasa de supervivencia, 
+### si graficamos la tasa de supervivencia, vemos que en comparacion las mujeres tienen mas chance de sobrevivir.
 train %>% filter(!is.na(Survived)) %>% ggplot(aes(factor(Sex), fill = factor(Survived))) +
   geom_bar(position = "fill")  +
   scale_fill_brewer(palette = "Set2") +    
   ggtitle("Tasa de Supervivencia") + 
-  labs(x = "Sex", y = "Rate")
+  labs(x = "Sex0", y = "Rate")
 
 
 ##si evaluamos la tasa de supervivencia por clase, vemos que 
@@ -99,6 +89,20 @@ train %>%
 train %>%
   ggplot(aes(x = Age, y = ..count.., fill = Survived)) +
   geom_density(alpha = 0.2)
+
+
+g1 <- train %>% 
+  ggplot(aes(x = SibSp + Parch)) + 
+  geom_bar(aes(fill = as.factor(SibSp + Parch))) + 
+  labs(x="Tamaño de Familia") + 
+  scale_fill_discrete(guide=FALSE) 
+
+g2 <-train %>% 
+  ggplot(aes(SibSp + Parch)) + 
+  geom_bar(aes(fill = Survived),position = "fill")+ 
+  labs(x="Tamaño de Familia") +
+  scale_fill_discrete(guide=FALSE) 
+grid.arrange(g1,g2)
 
 
 
@@ -147,7 +151,7 @@ rpart.plot(Parbol_4)
 
 ##predicción sobre Train con arbol podado
 
-Predic_PA4 <- predict(Parbol_4, newdata = train, type = "class")
+  Predic_PA4 <- predict(Parbol_4, newdata = train, type = "class")
 
 table(Predic_PA4, train$Survived)
 
@@ -161,3 +165,34 @@ Predic_A4 <- predict(arbol_4, newdata = train, type = "class")
 table(Predic_A4, train$Survived)
 
 sum((Predic_A4 == train$Survived) / length(train$Survived))*100
+
+
+##combinar variables vinculadas a la familia
+test$Familia <- test$Parch + test$SibSp 
+
+############
+####TEST####
+############
+
+##factorizar variables
+test <- test %>% 
+  mutate( Pclass=factor(Pclass, ordered=T),
+          Name=factor(Name), 
+          Sex=factor(Sex), 
+          Embarked=factor(Embarked),
+          Familia=factor(Familia))
+
+##predicción sobre test con arbol entero
+test$PSurvived<-NA
+test$PSurvived <- predict(arbol_4, newdata = test, type = "class")
+
+summary (test)
+View(test)
+
+###para submitir a Kaggle
+test2<-data.frame(test$PassengerId,test$PSurvived)
+names(test2)<-c("PassengerId","Survived")
+write.csv(test2, "testtitanic.csv",row.names = F)
+
+
+###score de 0.7799###
