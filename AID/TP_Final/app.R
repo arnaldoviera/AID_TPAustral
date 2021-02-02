@@ -6,7 +6,7 @@ rm(list =ls())
 setwd("C:/Users/vieraa/Documents/AID_TPAustral/AID/TP_Final")
 WD <- getwd()
 
-
+getwd()
 ## importación archivo correcto de tarea 1
 
 count
