@@ -1,4 +1,7 @@
 
+
+
+
 ##limiar ambiente de trabajo
 rm(list =ls())
 
@@ -42,7 +45,7 @@ MiServer <- function(input, output) {
       ggplot(aes(x = album_artist, y = energy, fill = album_artist)) +
       geom_bar(stat = "identity") +
       facet_wrap(~ album_artist) +
-      scale_fill_manual(values = c("red", "green")) +
+      scale_fill_manual(values = c("yellow", "green")) +
       ylab("% Energy") +
       theme(legend.position = "none",
             axis.text = element_text(size = 10))
