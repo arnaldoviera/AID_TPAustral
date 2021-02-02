@@ -22,7 +22,7 @@ interfaz <- fluidPage(
       checkboxGroupInput(
         inputId = "MiLista",
         label = "Banda a Visualizar",
-        choices = c("Serú Girán", "Sui Generis", "Charly Garcia", "PorSuiGieco", "La Máquina de Hacer Pájaros", "Billy Bond and The Jets"),
+        choices = c("Serú Girán", "Sui Generis", "Charly García", "PorSuiGieco", "La Máquina de Hacer Pájaros", "Billy Bond and The Jets"),
         selected = "Serú Girán")
     ),
     mainPanel(
@@ -43,7 +43,7 @@ MiServer <- function(input, output) {
       geom_bar(stat = "identity") +
       facet_wrap(~ album_artist) +
       scale_fill_manual(values = c("red", "green")) +
-      ylab("% danc") +
+      ylab("% Energy") +
       theme(legend.position = "none",
             axis.text = element_text(size = 10))
   })
