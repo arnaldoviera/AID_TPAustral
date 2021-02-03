@@ -12,14 +12,12 @@
 
 
 
-install.packages("rsconnect")
-library(shiny)
-library(tidyverse)
-library(rsconnect)
-library(readr)
-resultado <- read_delim("app2/resultado.txt", 
-                        "\t", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), 
-                        trim_ws = TRUE)
+##install.packages("rsconnect")
+##library(shiny)
+##library(tidyverse)
+##library(rsconnect)
+##library(readr)
+##resultado <- read_delim("app2/resultado.txt","\t", escape_double = FALSE, locale = locale(encoding = "ISO-8859-1"), trim_ws = TRUE)
 
 
 interfaz <- fluidPage(
