@@ -1,5 +1,8 @@
+#install.packages('rsconnect')
+
 #Importamos la librería shiny
 library(shiny)
+library(rsconnect)
 
 #Definimos la interfaz para mostrar un histograma de ejemplo
 ui <- fluidPage(

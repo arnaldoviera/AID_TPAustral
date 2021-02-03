@@ -1,0 +1,12 @@
+name: aid_prueba
+title: aid_prueba
+username:
+account: pruebaaid
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3571989
+bundleId: 4173980
+url: https://pruebaaid.shinyapps.io/aid_prueba/
+when: 1612323975.03993
+asMultiple: FALSE
+asStatic: FALSE
