@@ -1,0 +1,12 @@
+name: Juan_Shiny
+title: Juan_Shiny
+username:
+account: pruebaaid
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3571824
+bundleId: 4173926
+url: https://pruebaaid.shinyapps.io/Juan_Shiny/
+when: 1612322818.41371
+asMultiple: FALSE
+asStatic: FALSE
