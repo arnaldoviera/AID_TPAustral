@@ -2,67 +2,121 @@
 title: "Trabajo Practico Final"
 subtitle: "Análisis Inteligente de Datos - Universidad Austral"
 author: "Arnaldo Viera, Juan Chinga, Juan Quintero"
-date: "05/12/2020"
-output:
-  html_document:
-    toc: FALSE
-    number_sections: FALSE
-    df_print: paged
-    theme: united
+date: "15/02/2021"
+code_folding: show
+output: prettydoc::html_pretty
+number_sections: true
+theme: united
+highlight: tango
 ---
+```{r Fotos, echo=FALSE, fig.align='center', out.width='40%'}
+
+knitr::include_graphics("charly.jpg")
+```
 
 ```{r setup, include=FALSE}
 ###llamar paquetes
 knitr::opts_chunk$set(echo = TRUE)
-lista_paquetes = c("tibble","tidyverse","funModeling","dplyr")
+lista_paquetes = c("tibble","tidyverse","funModeling","dplyr","epiDisplay")
 nuevos_paquetes = lista_paquetes[!(lista_paquetes %in% installed.packages()[,"Package"])]
 if(length(nuevos_paquetes)) install.packages(nuevos_paquetes, dependencies = TRUE)
 
 ```
 
 
-```{r include=FALSE}
-##chink para llamar librerias
+```{r Librerias, include=FALSE}
+##chunk para llamar librerias
 library(tibble)
 library(funModeling)
 library(dplyr)
 library(PerformanceAnalytics)
 library(tidyverse)
+library(kableExtra)
+library(plotly)
+library(knitr)
+library(epiDisplay)
+library(readr)
+
 ```
-(##Introduccion)
+
+# Introduccion  
 En el Trabajo Final de la asignatura Análisis Inteligente de Datos utilizaremos nuevamente el conjunto
-de datos sobre canciones de Charly García y el trabajo ya realizado en las tareas anteriores. El objetivo
+de datos sobre canciones de **Charly García** y el trabajo ya realizado en las tareas anteriores. El objetivo
 es generar un producto en el cual se evidencie la presencia de las cuatro etapas del análisis discutidas en
 el curso: selección, limpieza, exploración y comunicación. Este producto debe tomar una de las
 siguientes dos formas, a elección de cada grupo:
 En este caso el grupo realizará la tarea en R Markdown.  
 
 
-(#a. Seleccion)
+## Seleccion  
  El conjunto de datos que estaremos analizando contiene información sobre 45 discos, y sus respectivas
-canciones, del icónico músico argentino Charly García. Las bases se presentan en una serie de archivos
+canciones del icónico músico argentino Charly García, ya sea como solista o formando parte de un grupo musical. Las bases se presentan en una serie de archivos
 comprimidos alojados en datos_charly.zip 
 
-En el tp 1 el grupo unio las canciones en un archivo unico, con 578 canciones, en 41 discos, en un archivo llamado resultado.txt
 
-##llamar al archivo resultado falta agregar eso
+## Limpieza
+En la primera etapa el equipo trabajo en organizar los datos en un archivo de texto separado por tabulaciones, de manera que pueda ser utilizado en las próximas etapas    
+Pasos realizados  
+* Descomprimir el archivo .zip que tenia toda la informacion  
+
+    + llamar archivo de formato excel con informacion del grupo musical _Seru Giran_ y definir los nombres de columnas  
+    + llamar archivo de formato csv con informacion del grupo musical _Sui Generis_ y seleccionar columnas pertinentes del archivo.  
+    + llamar archivo de formato txt con informacion del grupo musical _PorSuiGieco_  
+    + llamar al archivo de formato sas con informacion del grupo musical _Billy bond and the Jets_ 
+    + por ultimo llamamos a la carpeta con la información de los _discos solistas_ y unimos los discos a un disco unico.
+<span style="color:blue">unimos los datasets creados, y compilamos en un archivo unico txt, con 578 canciones, en 41 discos, llamado RESULTADO.TXT normal</span>
+
+
+```{r include=FALSE}
+dir_project <- getwd()
+file_resultado <- paste( dir_project , "/resultado.txt", sep="")
+resultado <- read_delim("resultado.txt", 
+    "\t", escape_double = FALSE, locale = locale(encoding = "WINDOWS-1252"), 
+    trim_ws = TRUE)
+
+```
+
+
+### Exploración  
+
+
+
+```{r Tible, echo=TRUE, message=TRUE}
+
+datos <- tibble(resultado)
+
+datos1<-datos %>% dplyr::select(name,track_number,album_name,album_artist,danceability, energy, loudness,mode, speechiness,acousticness, instrumentalness,liveness,valence,tempo,duration_ms)
+datos1 %>% 
+  kable() %>% 
+  kable_styling() %>% 
+  column_spec(1, border_right = TRUE, background = "green") %>%   scroll_box(height = "300px")
+##print(profiling_num(datos1))
+plot_num(datos)
+
+
+freq(datos$album_artist)
+
+```
 
 ```{r echo=TRUE}
-library(readr)
-resultado <- read_delim("resultado.txt", 
-    "\t", escape_double = FALSE, trim_ws = TRUE)
+one_plot <- function(d) {
+  plot_ly(d, x = ~valence) %>%
+    add_annotations(
+      ~unique(album_artist), x = 0.5, y = 1, 
+      xref = "paper", yref = "paper", showarrow = FALSE
+    )
+}
+
+datos %>%
+  split(.$album_artist) %>%
+  lapply(one_plot) %>% 
+  subplot(nrows = 2, shareX = TRUE, titleX = FALSE) %>%
+  hide_legend()
+
+
 ```
 
 
-*RESUMEN ARCHIVO*
-```{r Tible, echo=TRUE}
-datos <- tibble(resultado)
-summary(datos)
-print(profiling_num(datos))
-plot_num(datos)
-#describe(datos)
-```
-*Desarrollo y exposición de material*  
 Como primer paso analizamos todas las variables numéricas, para
 determinar posibles correlaciones entre las mismas; rápidamente
 observamos correlaciones que se destacan; Energy - Loudness, Energy
@@ -72,7 +126,7 @@ observamos correlaciones que se destacan; Energy - Loudness, Energy
 todas las variables. 
 
 ```{r numericos, echo=TRUE}
-datosnumericos <- select(datos, 
+datosnumericos <- dplyr::select(datos, 
                          danceability, 
                          energy, 
                          loudness, 
@@ -104,10 +158,44 @@ positivo. La correlación de las variables es de 0.63
 
 
 
+```{r eval=FALSE, include=FALSE}
+grafico1<- ggplot(datos) + 
+  aes(x = valence, y = energy, color = factor(album_artist)) +
+  geom_point()
+
+ggplotly(grafico1, width = 750)
+
+```
+
+  
+Segregamos la “positividad” de las canciones por Artista, teniendo en
+cuenta que los álbumes solistas de charly están agrupados bajo un solo
+nombre, “Charly Garcia”.
+Claramente vemos que PorSuiGieco es un álbum “poco Positivo”;
+donde el promedio de positividad es de 0.19, cerca de un 300% menos
+positivo que Billy Bond and the Jets.
+PorSuiGieco, que duró un solo disco y tres conciertos, realizó canciones
+icónicas como “la mama de Jimmy”, “la colina de la vida” y por supuesto
+“el fantasma de canterville”.
+Si nos adentramos en la historia contemporánea de nuestro país al
+disco vemos que esta banda empieza a notar la negatividad y los graves
+problemas que empezaban a gestarse en nuestro país. Y plasma esta
+“vibra” en su disco. El ejemplo de esto es la canción icónica de este
+disco, “el fantasma de canterville”, censurada por la COMFER, y con una
+cruda y directa descripción de la realidad del momento
+
+
 ```{r echo=TRUE}
 ggplot(datos) + 
   aes(x = valence, y = energy) +
   geom_point() +
-  stat_smooth(method = "lm")
+  stat_smooth(method = "lm")+
+  facet_wrap(~ key)
 
 ```
+
+
+
+
+
+
