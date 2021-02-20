@@ -1,0 +1,113 @@
+---
+title: "Trabajo Practico Final"
+subtitle: "Análisis Inteligente de Datos - Universidad Austral"
+author: "Arnaldo Viera, Juan Chinga, Juan Quintero"
+date: "05/12/2020"
+output:
+  html_document:
+    toc: FALSE
+    number_sections: FALSE
+    df_print: paged
+    theme: united
+---
+
+```{r setup, include=FALSE}
+###llamar paquetes
+knitr::opts_chunk$set(echo = TRUE)
+lista_paquetes = c("tibble","tidyverse","funModeling","dplyr")
+nuevos_paquetes = lista_paquetes[!(lista_paquetes %in% installed.packages()[,"Package"])]
+if(length(nuevos_paquetes)) install.packages(nuevos_paquetes, dependencies = TRUE)
+
+```
+
+
+```{r include=FALSE}
+##chink para llamar librerias
+library(tibble)
+library(funModeling)
+library(dplyr)
+library(PerformanceAnalytics)
+library(tidyverse)
+```
+(##Introduccion)
+En el Trabajo Final de la asignatura Análisis Inteligente de Datos utilizaremos nuevamente el conjunto
+de datos sobre canciones de Charly García y el trabajo ya realizado en las tareas anteriores. El objetivo
+es generar un producto en el cual se evidencie la presencia de las cuatro etapas del análisis discutidas en
+el curso: selección, limpieza, exploración y comunicación. Este producto debe tomar una de las
+siguientes dos formas, a elección de cada grupo:
+En este caso el grupo realizará la tarea en R Markdown.  
+
+
+(#a. Seleccion)
+ El conjunto de datos que estaremos analizando contiene información sobre 45 discos, y sus respectivas
+canciones, del icónico músico argentino Charly García. Las bases se presentan en una serie de archivos
+comprimidos alojados en datos_charly.zip 
+
+En el tp 1 el grupo unio las canciones en un archivo unico, con 578 canciones, en 41 discos, en un archivo llamado resultado.txt
+
+##llamar al archivo resultado falta agregar eso
+
+```{r echo=TRUE}
+library(readr)
+resultado <- read_delim("C:/Users/quintej/Desktop/MCD/AID/resultado.txt", 
+    "\t", escape_double = FALSE, trim_ws = TRUE)
+```
+
+
+*RESUMEN ARCHIVO*
+```{r Tible, echo=TRUE}
+datos <- tibble(resultado)
+summary(datos)
+print(profiling_num(datos))
+plot_num(datos)
+#describe(datos)
+```
+*Desarrollo y exposición de material*  
+Como primer paso analizamos todas las variables numéricas, para
+determinar posibles correlaciones entre las mismas; rápidamente
+observamos correlaciones que se destacan; Energy - Loudness, Energy
+- Valence, y Energy - Danceability.
+
+ Gráfico que muestra dispersión, histogramas y correlación entre
+todas las variables. 
+
+```{r numericos, echo=TRUE}
+datosnumericos <- select(datos, 
+                         danceability, 
+                         energy, 
+                         loudness, 
+                         speechiness,
+                         acousticness,
+                         instrumentalness, 
+                         liveness,
+                         valence,
+                         tempo)
+
+
+
+chart.Correlation(datosnumericos, histogram=TRUE, pch=40)
+```
+
+```{r echo=TRUE}
+ggplot(datos) + 
+  aes(x = valence, y = energy) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+
+```
+
+Interpretación: Hay una relación positiva entre ambas variables. Tiene
+sentido, es difícil de pensar que algo que tenga mucha energía sea poco
+positivo. La correlación de las variables es de 0.63
+
+
+
+
+```{r echo=TRUE}
+ggplot(datos) + 
+  aes(x = valence, y = energy) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+```
