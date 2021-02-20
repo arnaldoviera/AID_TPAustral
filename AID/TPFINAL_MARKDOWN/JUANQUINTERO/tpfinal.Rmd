@@ -3,9 +3,7 @@ title: "Trabajo Practico Final"
 subtitle: "Análisis Inteligente de Datos - Universidad Austral"
 author: "Arnaldo Viera, Juan Chinga, Juan Quintero"
 date: "15/02/2021"
-code_folding: show
 output: prettydoc::html_pretty
-number_sections: true
 theme: united
 highlight: tango
 ---
@@ -17,7 +15,7 @@ knitr::include_graphics("charly.jpg")
 ```{r setup, include=FALSE}
 ###llamar paquetes
 knitr::opts_chunk$set(eval = FALSE, include = FALSE)
-lista_paquetes = c("tidytext","wordcloud","tibble","tidyverse","funModeling","dplyr","epiDisplay")
+lista_paquetes = c("tidytext","wordcloud","tibble","tidyverse","funModeling","dplyr","epiDisplay","prettydoc")
 nuevos_paquetes = lista_paquetes[!(lista_paquetes %in% installed.packages()[,"Package"])]
 if(length(nuevos_paquetes)) install.packages(nuevos_paquetes, dependencies = TRUE)
 
@@ -35,13 +33,14 @@ library(kableExtra)
 library(plotly)
 library(knitr)
 library(epiDisplay)
-library(readr)
 library(psych)
 library(tidytext)
 library(wordcloud)
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
+library(prettydoc)
+library(readr)
 
 
 
@@ -77,8 +76,8 @@ Pasos realizados
 
 
 ```{r Resultado, include=FALSE}
+getwd()
 dir_project <- getwd()
-file_resultado <- paste( dir_project , "/resultado.txt", sep="")
 resultado <- read_delim("resultado.txt", 
     "\t", escape_double = FALSE, locale = locale(encoding = "WINDOWS-1252"), 
     trim_ws = TRUE)
@@ -345,15 +344,6 @@ determina la media de la positividad u/o energía si la carrera es extensa,
 tarde o temprano, terminan teniendo canciones recorriendo el
 espectro de ambas variables, como es el caso de Sui Generis, Serú Girán
 y la carrera de Charly como solista.
-
-
-
-
-
-
-
-
-
 
 
 
