@@ -16,8 +16,8 @@ knitr::include_graphics("charly.jpg")
 
 ```{r setup, include=FALSE}
 ###llamar paquetes
-knitr::opts_chunk$set(echo = TRUE)
-lista_paquetes = c("tibble","tidyverse","funModeling","dplyr","epiDisplay")
+knitr::opts_chunk$set(eval = FALSE, include = FALSE)
+lista_paquetes = c("tidytext","wordcloud","tibble","tidyverse","funModeling","dplyr","epiDisplay")
 nuevos_paquetes = lista_paquetes[!(lista_paquetes %in% installed.packages()[,"Package"])]
 if(length(nuevos_paquetes)) install.packages(nuevos_paquetes, dependencies = TRUE)
 
@@ -37,6 +37,13 @@ library(knitr)
 library(epiDisplay)
 library(readr)
 library(psych)
+library(tidytext)
+library(wordcloud)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+
+
 
 ```
 
@@ -125,7 +132,7 @@ freq(datos$album_artist)
 
 corPlot(datosnumericos, cex = 0.5, main = "Matrix de correlaciones"  )
 ```
-<span style="color:red">   al referirnos a variables de tipo numéricas y, en su mayoría, contínuas la información que nos brida la función corPlot del paquete psych es muy valiosa y sintética. A partir de la escala de colores y tamaños de las letras, podemos ver las correlaciones más fuertes son 0.77 energy/loudness, acousticness/energy -0.63. En este sentido, 0.63 es un vínculo claro entre las 2 variables que elegimos, aunque no la más fuerte.  
+<span style="color:red">al referirnos a variables de tipo numéricas y, en su mayoría, contínuas la información que nos brida la función corPlot del paquete psych es muy valiosa y sintética. A partir de la escala de colores y tamaños de las letras, podemos ver las correlaciones más fuertes son 0.77 energy/loudness, acousticness/energy -0.63. En este sentido, 0.63 es un vínculo claro entre las 2 variables que elegimos, aunque no la más fuerte.  
 
 
 ### Correlacion entre Valence y Energy.
@@ -182,6 +189,37 @@ ggplotly(grafico4, width = 750)
 ```
   
   <span style="color:red">Interpretación: sin ser expertos en música, podemos decir que en la toda carrera de Charly García no hay grandes cambios que valga la pensa mencionar y que modifique sustancialmente la correlación de las variables elegidas (Energy/Valence): se mantienen estables con una correlación positiva. En cuanto a la variabilidad, hay algunos tonos que acumulan pocas canciones como por ejemplo 1 (C#/Db). En cambio 0 (Do) o 2 (Re) acumulan muchas canciones y la variabilidad disminuye.
+
+
+### Gráfico LOESS
+```{r nube, message=FALSE, warning=FALSE}
+
+d2 <- sapply(c(.1, .6), function(alfa) loess(datos$energy ~ datos$valence, datos, span = alfa)$fitted)
+colnames(d2) <- paste("alfa =", c("0.1", "0.6"))
+# Uno estos valores ajustados con el dataset con los x e y originales
+d2 <- cbind(datos, d2)
+# Paso el dataset a formato largo
+d2 <- pivot_longer(d2, starts_with("alfa"), names_to = "alfa", values_to = "fitted")
+
+
+# Grafico en distintos paneles
+grafico6<-ggplot(d2) + 
+  aes(x = valence) +
+  geom_point(aes(y = energy)) +
+  geom_line(aes(y = fitted), color = "blue", lwd = 1.25) +
+  facet_wrap(~ alfa, nrow = 3) +
+  theme(panel.spacing = unit(0, "lines"))
+
+ggplotly(grafico6, width = 750)
+
+
+
+
+```
+
+<span style="color:red">la curva LOESS es un tipo de ajuste de curvas a datos mediante suavizados (smoothies). Cada valor, suavizado por una regresion cuadrática en cada intervalo nos permite observar en especial con un alfa elevado la curva de regresion de manera sencilla.
+
+
 
 
 
@@ -286,7 +324,8 @@ datossBnumericos <- dplyr::select(datossinBilly,
 
 corPlot(datossBnumericos, cex = 0.5, main = "Matrix de correlaciones sin Billy Bond and The Jets"  ) 
 ```
-<span style="color:red">como se observa en el grafico, aumenta la correlacion entre valence y energy & loudness y energy al sacar BB and the jets
+<span style="color:red">
+como se observa en el grafico, aumenta la correlacion entre valence y energy & loudness y energy al sacar BB and the jets
 
 
 
@@ -306,6 +345,9 @@ determina la media de la positividad u/o energía si la carrera es extensa,
 tarde o temprano, terminan teniendo canciones recorriendo el
 espectro de ambas variables, como es el caso de Sui Generis, Serú Girán
 y la carrera de Charly como solista.
+
+
+
 
 
 
