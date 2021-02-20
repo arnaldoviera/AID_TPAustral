@@ -36,6 +36,7 @@ library(plotly)
 library(knitr)
 library(epiDisplay)
 library(readr)
+library(psych)
 
 ```
 
@@ -64,10 +65,11 @@ Pasos realizados
     + llamar archivo de formato txt con informacion del grupo musical _PorSuiGieco_  
     + llamar al archivo de formato sas con informacion del grupo musical _Billy bond and the Jets_ 
     + por ultimo llamamos a la carpeta con la información de los _discos solistas_ y unimos los discos a un disco unico.
+
 <span style="color:blue">unimos los datasets creados, y compilamos en un archivo unico txt, con 578 canciones, en 41 discos, llamado RESULTADO.TXT normal</span>
 
 
-```{r include=FALSE}
+```{r Resultado, include=FALSE}
 dir_project <- getwd()
 file_resultado <- paste( dir_project , "/resultado.txt", sep="")
 resultado <- read_delim("resultado.txt", 
@@ -79,26 +81,73 @@ resultado <- read_delim("resultado.txt",
 
 ### Exploración  
 
-
-
+Tabla 1: totalidad de datos 
 ```{r Tible, echo=TRUE, message=TRUE}
 
 datos <- tibble(resultado)
-
-datos1<-datos %>% dplyr::select(name,track_number,album_name,album_artist,danceability, energy, loudness,mode, speechiness,acousticness, instrumentalness,liveness,valence,tempo,duration_ms)
-datos1 %>% 
+datos %>% 
   kable() %>% 
   kable_styling() %>% 
-  column_spec(1, border_right = TRUE, background = "green") %>%   scroll_box(height = "300px")
-##print(profiling_num(datos1))
-plot_num(datos)
+  column_spec(1, border_right = TRUE, background = "grey") %>% 
+  row_spec(0:578, bold = TRUE, italic = TRUE, color = "black") %>% 
+  scroll_box(height = "300px")
+```
+  
+### Realizamos un analisis de frecuencia de las variables numéricas
+```{r Plot Num Entero, echo=TRUE, warning=FALSE}
+datosnumericos <- dplyr::select(datos, 
+                         danceability, 
+                         energy, 
+                         loudness, 
+                         speechiness,
+                         acousticness,
+                         instrumentalness, 
+                         liveness,
+                         valence,
+                         tempo)
+plot_num(datosnumericos)
+```
 
 
+### Cantidad de Canciones por Artista
+```{r Plot Num 2, echo=TRUE, warning=FALSE}
 freq(datos$album_artist)
+
+
+```
+<span style="color:red"> Observamos que Charly como solista realizó muchas mas canciones que como grupo, con mayoría de albumes en grupo al comienzo de su carrera.
+
+
+
+### Correlacion entre todas las variables  
+```{r Correlac, echo=TRUE, warning=FALSE}
+
+
+corPlot(datosnumericos, cex = 0.5, main = "Matrix de correlaciones"  )
+```
+<span style="color:red">   al referirnos a variables de tipo numéricas y, en su mayoría, contínuas la información que nos brida la función corPlot del paquete psych es muy valiosa y sintética. A partir de la escala de colores y tamaños de las letras, podemos ver las correlaciones más fuertes son 0.77 energy/loudness, acousticness/energy -0.63. En este sentido, 0.63 es un vínculo claro entre las 2 variables que elegimos, aunque no la más fuerte.  
+
+
+### Correlacion entre Valence y Energy.
+```{r Corr1, echo=TRUE, message=FALSE, warning=FALSE}
+grafico3<-ggplot(datos) + 
+  aes(x = valence, y = energy) +
+  geom_point() +
+  stat_smooth(method = "lm")
+ggplotly(grafico3, width = 750)
+
 
 ```
 
-```{r echo=TRUE}
+
+<span style="color:red">Interpretación: Hay una relación positiva entre ambas variables. Tiene
+sentido, es difícil de pensar que algo que tenga mucha energía sea poco
+positivo. La correlación de las variables es de 0.63  
+
+
+
+### Frecuencia de Energia por Artista
+```{r freq Energia, echo=TRUE, message=FALSE, warning=FALSE}
 one_plot <- function(d) {
   plot_ly(d, x = ~valence) %>%
     add_annotations(
@@ -114,19 +163,116 @@ datos %>%
   hide_legend()
 
 
+
+```
+<span style="color:red"> este gráfico de frecuencia de canciones por nivel de energia y por artista muestra como _PorSuiGIeco_ es el grupo menos enérgico que Charly participo. 
+   
+   
+### Energy vs valence Aperturado por Key 
+```{r Clve de do, message=FALSE, warning=FALSE}
+
+grafico4<- ggplot(datos) + 
+  aes(x = valence, y = energy) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  facet_wrap(~ key)
+
+
+ggplotly(grafico4, width = 750)
+```
+  
+  <span style="color:red">Interpretación: sin ser expertos en música, podemos decir que en la toda carrera de Charly García no hay grandes cambios que valga la pensa mencionar y que modifique sustancialmente la correlación de las variables elegidas (Energy/Valence): se mantienen estables con una correlación positiva. En cuanto a la variabilidad, hay algunos tonos que acumulan pocas canciones como por ejemplo 1 (C#/Db). En cambio 0 (Do) o 2 (Re) acumulan muchas canciones y la variabilidad disminuye.
+
+
+
+### Correlacion entre otas variables: Energy y Loudness
+```{r Corr E y L, echo=TRUE, message=FALSE, warning=FALSE}
+grafico1<- ggplot(datos) + 
+  aes(x = loudness, y = energy, color = factor(album_artist)) +
+  geom_point()
+
+ggplotly(grafico1, width = 750)
+
+```
+<span style="color:red">Mayor correlacion que encontramos entre los datos, siendo esta de 0,77;
+En esta correlacion, y segregando el Artista PorSuiGieco, tambien vemos que los valores de Energia y Loudness siguen siendo bajos.
+
+### Box Plot de Energia por Artista
+```{r BP por artista E, echo=TRUE, message=FALSE, warning=FALSE}
+grafico2<-ggplot(datos, aes(x=album_artist, y=energy, fill=album_artist) ) +
+  geom_boxplot(alpha=0.3, outlier.colour = "blue") +
+  labs(x="Artista", y="Energia") +
+  guides(fill=FALSE) +
+  coord_flip() +              
+  geom_point(stat= "summary", fun.y=mean, shape=16, size=4, color="red") +
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.2)
+
+
+ggplotly(grafico2, width = 750)
 ```
 
 
-Como primer paso analizamos todas las variables numéricas, para
-determinar posibles correlaciones entre las mismas; rápidamente
-observamos correlaciones que se destacan; Energy - Loudness, Energy
-- Valence, y Energy - Danceability.
 
- Gráfico que muestra dispersión, histogramas y correlación entre
-todas las variables. 
+### Box Plot de Loudness por Artista
+```{r BP loudness por Artista, echo=TRUE, message=FALSE, warning=FALSE}
+grafico2<-ggplot(datos, aes(x=album_artist, y=loudness, fill=album_artist) ) +
+  geom_boxplot(alpha=0.3, outlier.colour = "blue") +
+  labs(x="Artista", y="Loudness") +
+  guides(fill=FALSE) +
+  coord_flip() +              
+  geom_point(stat= "summary", fun.y=mean, shape=16, size=4, color="red") +
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.2)
 
-```{r numericos, echo=TRUE}
-datosnumericos <- dplyr::select(datos, 
+
+ggplotly(grafico2, width = 750)
+```
+<span style="color:red"> Se mantiene la misma tendencia que en los gráficos anteriores; PorSuiGieco sigue siendo la banda con menos decibeles, con canciones realizadas en gran medida para reflexionar.
+
+
+
+la banda PorSuiGieco, que duró un solo disco (realizado en el año 1975) y tres conciertos, realizó canciones icónicas como “la mama de Jimmy”, “la colina de la vida” y por supuesto “el fantasma de canterville”, ícono de la musica argentina.  
+Si nos adentramos en la historia contemporánea de nuestro país al
+disco vemos que esta banda empieza a notar la negatividad y los graves
+problemas que empezaban a gestarse en nuestro país, plasmando esta
+“vibra” en su disco.   
+Es tal la correcta lectura por parte de Charly y su banda, que el "fantasma de canterville" es  censurada por la COMFER, por la cruda descripcion del momento argentino   
+
+_"He muerto muchas veces acribillado en la ciudad
+pero es mejor ser muerto que un numero que viene y va
+Y en mi tumba tengo perros y cosas que no me hacen mal
+Después de muerto nena vos me vendrás a visitar"_
+
+
+
+### Analisis de Variables sin Billy Bond and the Jets
+
+
+
+```{r Sin Billy Bond, message=FALSE, warning=FALSE}
+grafico5<-ggplot(datos) + 
+  aes(x = valence , y = energy, color = album_artist) +
+  geom_point() +
+  stat_smooth(method = "lm")+
+  facet_wrap(~ album_artist)
+
+ggplotly(grafico5, width = 750)
+```
+
+<span style="color:red">Gracias a este gráfico, vemos que la banda de charly, Billy bonds and the Jets se comporta diferente al resto de las bandas de
+Charly. Todas tienen una correlación positiva, salvo esta. La
+interpretación es que si la canción tenía mucha energía, bajaba en
+positividad y viceversa. Algunos críticos mencionan que la ironía y
+la influencia en el estilo de Billy Bond (es un músico aún activo) en
+el grupo Serú Girán le daba un tono irónico no apto para estas
+latitudes en esos momentos
+
+
+
+```{r sin billy bond 2}
+## Filtramos para obtener todas las bandas excepto "Billy Bond and The Jets"
+datossinBilly <- filter(datos, album_artist != "Billy Bond and The Jets")
+
+datossBnumericos <- dplyr::select(datossinBilly, 
                          danceability, 
                          energy, 
                          loudness, 
@@ -138,61 +284,32 @@ datosnumericos <- dplyr::select(datos,
                          tempo)
 
 
-
-chart.Correlation(datosnumericos, histogram=TRUE, pch=40)
+corPlot(datossBnumericos, cex = 0.5, main = "Matrix de correlaciones sin Billy Bond and The Jets"  ) 
 ```
-
-```{r echo=TRUE}
-ggplot(datos) + 
-  aes(x = valence, y = energy) +
-  geom_point() +
-  stat_smooth(method = "lm")
-
-
-```
-
-Interpretación: Hay una relación positiva entre ambas variables. Tiene
-sentido, es difícil de pensar que algo que tenga mucha energía sea poco
-positivo. La correlación de las variables es de 0.63
+<span style="color:red">como se observa en el grafico, aumenta la correlacion entre valence y energy & loudness y energy al sacar BB and the jets
 
 
 
+Finalizando este análisis, hemos notado que varias variables merecen estudiarse; como por ejemplo la positividad y la
+energía. A simple vista pareciera ser que van de la mano: las canciones
+tristes tienen poca energía y son “relajantes” y las canciones alegres
+“mucho ritmo”, veloces. Entendimos que hay una excepción a esta regla,
+que es la banda **Billy Bond and The Jets** donde la energía y positividad
+tienen correlación inversa, leve, pero la tienen. La ironía en las letras
+acompañadas con música con energía es una propuesta artística
+distinta al resto de las experiencias musicales de Charly.  
 
-```{r eval=FALSE, include=FALSE}
-grafico1<- ggplot(datos) + 
-  aes(x = valence, y = energy, color = factor(album_artist)) +
-  geom_point()
-
-ggplotly(grafico1, width = 750)
-
-```
-
-  
-Segregamos la “positividad” de las canciones por Artista, teniendo en
-cuenta que los álbumes solistas de charly están agrupados bajo un solo
-nombre, “Charly Garcia”.
-Claramente vemos que PorSuiGieco es un álbum “poco Positivo”;
-donde el promedio de positividad es de 0.19, cerca de un 300% menos
-positivo que Billy Bond and the Jets.
-PorSuiGieco, que duró un solo disco y tres conciertos, realizó canciones
-icónicas como “la mama de Jimmy”, “la colina de la vida” y por supuesto
-“el fantasma de canterville”.
-Si nos adentramos en la historia contemporánea de nuestro país al
-disco vemos que esta banda empieza a notar la negatividad y los graves
-problemas que empezaban a gestarse en nuestro país. Y plasma esta
-“vibra” en su disco. El ejemplo de esto es la canción icónica de este
-disco, “el fantasma de canterville”, censurada por la COMFER, y con una
-cruda y directa descripción de la realidad del momento
+Por otro lado, hemos entendido que la banda **PorSuiGieco** es una
+banda dentro de su contexto histórico: letras tristes y poca energía.
+Por último hemos visto que si bien el perfil musical de un artista
+determina la media de la positividad u/o energía si la carrera es extensa,
+tarde o temprano, terminan teniendo canciones recorriendo el
+espectro de ambas variables, como es el caso de Sui Generis, Serú Girán
+y la carrera de Charly como solista.
 
 
-```{r echo=TRUE}
-ggplot(datos) + 
-  aes(x = valence, y = energy) +
-  geom_point() +
-  stat_smooth(method = "lm")+
-  facet_wrap(~ key)
 
-```
+
 
 
 
